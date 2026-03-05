@@ -1,0 +1,17 @@
+# Get all tasks
+curl -v http://localhost:5001/tasks
+
+# Get specific task
+curl -v http://localhost:5001/tasks/1
+
+# Post a task
+curl -X POST http://localhost:5001/tasks -H "Content-Type: application/json" -d '{"id":5,"title":"E","description":"Fifth Task"}'
+
+# Delete a task
+curl -X DELETE http://localhost:5001/tasks/1
+
+curl -v -X DELETE http://localhost:5001/tasks/1
+```
+
+#update a task
+curl -X PUT http://localhost:5001/tasks/3 -H "Content-Type: application/json" -d '{"title":"Updated C","description":"Updated Third Task"}'
