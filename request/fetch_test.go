@@ -41,20 +41,8 @@ func (s *StubTaskStore) AddTask(task Task) {
 	s.tasks = append(s.tasks, task)
 }
 
-func (s *StubTaskStore) GetAllTasks() []Task {
+func (s *StubTaskStore) GetAllTasks() List {
 	return s.tasks
-}
-
-func (s *StubTaskStore) GetSpecificTask(id int) (Task, bool) {
-
-	for i := range s.tasks {
-		if s.tasks[i].ID == id {
-			return s.tasks[i], true
-		}
-	}
-
-	return Task{}, false
-
 }
 
 func TestSingularTaskFunctions(t *testing.T) {

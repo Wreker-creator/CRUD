@@ -14,8 +14,7 @@ type Task struct {
 }
 
 type TaskStore interface {
-	GetSpecificTask(id int) (Task, bool)
-	GetAllTasks() []Task
+	GetAllTasks() List
 	AddTask(task Task)
 	DeleteTask(id int) bool
 	UpdateTask(id int, task Task) bool
@@ -76,7 +75,7 @@ func (t *TaskServer) returnAllTasks(w http.ResponseWriter) {
 }
 
 func (t *TaskServer) returnTask(w http.ResponseWriter, id int) {
-	task, check := t.store.GetSpecificTask(id)
+	task, check := t.store.GetAllTasks().Find(id)
 	w.Header().Set("content-type", "application/json")
 	if check == false {
 		w.WriteHeader(http.StatusNotFound)
