@@ -2,13 +2,16 @@ package request
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
+	"sort"
 )
 
 type FileSystemStore struct {
-	database io.Writer // we are going to encapsulate in tape.
-	list     List
+	database *json.Encoder // we dont need to create a new encoder every time we could just initialise one in our constrcutor
+
+	list List
 	/*
 		The reason for adding list here is as follows -
 
@@ -21,15 +24,40 @@ type FileSystemStore struct {
 	*/
 }
 
-func NewFileSystemTaskStore(database *os.File) *FileSystemStore {
+func NewFileSystemTaskStore(database *os.File) (*FileSystemStore, error) {
 
-	database.Seek(0, io.SeekStart)
-	list, _ := NewList(database)
+	err := initialiseTaskDbFile(database)
+	if err != nil {
+		return nil, fmt.Errorf("problem initialise the db file %v", err)
+	}
+
+	list, err := NewList(database)
+
+	if err != nil {
+		return nil, fmt.Errorf("got error %v, while loading tasks from file %s", err, database.Name())
+	}
 
 	return &FileSystemStore{
-		database: &tape{database}, // encapsulated in tape
+		database: json.NewEncoder(&tape{database}), // encapsulated in tape
 		list:     list,
+	}, nil
+
+}
+
+func initialiseTaskDbFile(file *os.File) error {
+	file.Seek(0, io.SeekStart)
+
+	info, err := file.Stat()
+	if err != nil {
+		return fmt.Errorf("got error %v, while getting info from file %s", err, file.Name())
 	}
+
+	if info.Size() == 0 {
+		file.Write([]byte("[]"))
+		file.Seek(0, io.SeekStart)
+	}
+
+	return nil
 
 }
 
@@ -39,7 +67,8 @@ func (f *FileSystemStore) DeleteTask(id int) bool {
 		if f.list[i].ID == id {
 			f.list = append(f.list[:i], f.list[i+1:]...)
 			// f.database.Seek(0, io.SeekStart)
-			json.NewEncoder(f.database).Encode(&f.list)
+			// json.NewEncoder(f.database).Encode(&f.list)
+			f.database.Encode(&f.list)
 			return true
 		}
 	}
@@ -47,6 +76,11 @@ func (f *FileSystemStore) DeleteTask(id int) bool {
 }
 
 func (f *FileSystemStore) GetAllTasks() List {
+
+	sort.Slice(f.list, func(i, j int) bool {
+		return f.list[i].ID < f.list[j].ID
+	})
+
 	return f.list
 }
 
@@ -66,7 +100,8 @@ func (f *FileSystemStore) UpdateTask(id int, task Task) bool {
 		if f.list[i].ID == id {
 			f.list[i] = task
 			// f.database.Seek(0, io.SeekStart)
-			json.NewEncoder(f.database).Encode(&f.list)
+			// json.NewEncoder(f.database).Encode(&f.list)
+			f.database.Encode(&f.list)
 			return true
 		}
 	}
@@ -78,5 +113,6 @@ func (f *FileSystemStore) UpdateTask(id int, task Task) bool {
 func (f *FileSystemStore) AddTask(task Task) {
 	f.list = append(f.list, task)
 	// f.database.Seek(0, io.SeekStart)
-	json.NewEncoder(f.database).Encode(&f.list)
+	// json.NewEncoder(f.database).Encode(&f.list)
+	f.database.Encode(&f.list)
 }

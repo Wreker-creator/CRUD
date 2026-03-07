@@ -18,7 +18,9 @@ func TestFileSystemStore(t *testing.T) {
 		defer cleanDatabase()
 
 		// store := FileSystemStore{Database: database}
-		store := NewFileSystemTaskStore(database)
+		store, err := NewFileSystemTaskStore(database)
+		assertNoError(t, err)
+
 		got := store.GetAllTasks()
 
 		want := []Task{
@@ -45,7 +47,8 @@ func TestFileSystemStore(t *testing.T) {
 		defer cleanDatabase()
 
 		// store := FileSystemStore{database}
-		store := NewFileSystemTaskStore(database)
+		store, err := NewFileSystemTaskStore(database)
+		assertNoError(t, err)
 		got, _ := store.GetAllTasks().Find(1)
 
 		want := Task{ID: 1, Title: "A", Description: "First Task"}
@@ -64,7 +67,8 @@ func TestFileSystemStore(t *testing.T) {
 		defer cleanDatabase()
 
 		// store := FileSystemStore{Database: database}
-		store := NewFileSystemTaskStore(database)
+		store, err := NewFileSystemTaskStore(database)
+		assertNoError(t, err)
 
 		task := Task{ID: 2, Title: "A", Description: "First Task"}
 		store.UpdateTask(2, task)
@@ -86,7 +90,8 @@ func TestFileSystemStore(t *testing.T) {
 		defer cleanDatabase()
 
 		// store := FileSystemStore{Database: database}
-		store := NewFileSystemTaskStore(database)
+		store, err := NewFileSystemTaskStore(database)
+		assertNoError(t, err)
 		task := Task{ID: 4, Title: "D", Description: "Fourth Task"}
 		store.AddTask(task)
 
@@ -107,15 +112,15 @@ func TestFileSystemStore(t *testing.T) {
 		defer cleanDatabase()
 
 		// store := FileSystemStore{Database: database}
-		store := NewFileSystemTaskStore(database)
+		store, err := NewFileSystemTaskStore(database)
+		assertNoError(t, err)
 
 		id := 3
 		store.DeleteTask(id)
 
-		task, err := store.GetAllTasks().Find(id)
-
+		task, task_err := store.GetAllTasks().Find(id)
 		if task != nil {
-			t.Errorf("Expected nil, '%v'", err)
+			t.Errorf("expected task to be deleted, but found %v", task_err)
 		}
 
 		got := store.GetAllTasks()
@@ -124,6 +129,35 @@ func TestFileSystemStore(t *testing.T) {
 			{ID: 2, Title: "B", Description: "Second Task"},
 		}
 
+		assertTasks(t, got, want)
+
+	})
+
+	t.Run("tasks are sorted by id", func(t *testing.T) {
+
+		database, cleanDatabase := createTempFile(t, `[
+			{"id": 2, "title": "B", "description": "Second Task"},
+			{"id": 1, "title": "A", "description": "First Task"},
+			{"id": 3, "title": "C", "description": "Third Task"}
+		]`)
+
+		defer cleanDatabase()
+
+		// store := FileSystemStore{Database: database}
+		store, err := NewFileSystemTaskStore(database)
+		assertNoError(t, err)
+
+		got := store.GetAllTasks()
+
+		want := []Task{
+			{ID: 1, Title: "A", Description: "First Task"},
+			{ID: 2, Title: "B", Description: "Second Task"},
+			{ID: 3, Title: "C", Description: "Third Task"},
+		}
+
+		assertTasks(t, got, want)
+
+		got = store.GetAllTasks()
 		assertTasks(t, got, want)
 
 	})
@@ -153,4 +187,11 @@ func createTempFile(t testing.TB, initialData string) (*os.File, func()) {
 
 	return tempFile, removeFile
 
+}
+
+func assertNoError(t testing.TB, err error) {
+	t.Helper()
+	if err != nil {
+		t.Fatalf("didn't expect an error but got one, %v", err)
+	}
 }

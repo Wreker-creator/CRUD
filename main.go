@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bookstore/request"
 	"log"
 	"net/http"
 	"os"
+	"task/request"
 )
 
 // "bookstore/request"
@@ -21,7 +21,10 @@ func main() {
 		log.Fatalf("problem opening %s %v", dbFileName, err)
 	}
 
-	store := request.NewFileSystemTaskStore(db)
+	store, err := request.NewFileSystemTaskStore(db)
+	if err != nil {
+		log.Fatalf("got error %v", err)
+	}
 	server := request.NewTaskServer(store)
 
 	http.ListenAndServe(":5001", server)
