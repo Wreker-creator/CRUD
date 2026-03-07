@@ -15,7 +15,7 @@ func (l List) Find(id int) (*Task, bool) {
 			return &l[i], true
 		}
 	}
-	return &Task{}, false
+	return nil, false
 
 }
 

@@ -10,15 +10,15 @@ func TestFileSystemStore(t *testing.T) {
 	t.Run("List from reader", func(t *testing.T) {
 
 		database, cleanDatabase := createTempFile(t, `[
-			{"ID": 1, "Title": "A", "Description": "First Task"},
-			{"ID": 2, "Title": "B", "Description": "Second Task"},
-			{"ID": 3, "Title": "C", "Description": "Third Task"}
+			{"id": 1, "title": "A", "description": "First Task"},
+			{"id": 2, "title": "B", "description": "Second Task"},
+			{"id": 3, "title": "C", "description": "Third Task"}
 		]`)
 
 		defer cleanDatabase()
 
 		// store := FileSystemStore{Database: database}
-		store := NewFileSystemPlayerStore(database)
+		store := NewFileSystemTaskStore(database)
 		got := store.GetAllTasks()
 
 		want := []Task{
@@ -37,15 +37,15 @@ func TestFileSystemStore(t *testing.T) {
 	t.Run("get a specific task from an id", func(t *testing.T) {
 
 		database, cleanDatabase := createTempFile(t, `[
-			{"ID": 1, "Title": "A", "Description": "First Task"},
-			{"ID": 2, "Title": "B", "Description": "Second Task"},
-			{"ID": 3, "Title": "C", "Description": "Third Task"}
+			{"id": 1, "title": "A", "description": "First Task"},
+			{"id": 2, "title": "B", "description": "Second Task"},
+			{"id": 3, "title": "C", "description": "Third Task"}
 		]`)
 
 		defer cleanDatabase()
 
 		// store := FileSystemStore{database}
-		store := NewFileSystemPlayerStore(database)
+		store := NewFileSystemTaskStore(database)
 		got, _ := store.GetAllTasks().Find(1)
 
 		want := Task{ID: 1, Title: "A", Description: "First Task"}
@@ -56,15 +56,15 @@ func TestFileSystemStore(t *testing.T) {
 	t.Run("update existing task", func(t *testing.T) {
 
 		database, cleanDatabase := createTempFile(t, `[
-			{"ID": 1, "Title": "A", "Description": "First Task"},
-			{"ID": 2, "Title": "B", "Description": "Second Task"},
-			{"ID": 3, "Title": "C", "Description": "Third Task"}
+			{"id": 1, "title": "A", "description": "First Task"},
+			{"id": 2, "title": "B", "description": "Second Task"},
+			{"id": 3, "title": "C", "description": "Third Task"}
 		]`)
 
 		defer cleanDatabase()
 
 		// store := FileSystemStore{Database: database}
-		store := NewFileSystemPlayerStore(database)
+		store := NewFileSystemTaskStore(database)
 
 		task := Task{ID: 2, Title: "A", Description: "First Task"}
 		store.UpdateTask(2, task)
@@ -78,15 +78,15 @@ func TestFileSystemStore(t *testing.T) {
 	t.Run("store new tasks", func(t *testing.T) {
 
 		database, cleanDatabase := createTempFile(t, `[
-			{"ID": 1, "Title": "A", "Description": "First Task"},
-			{"ID": 2, "Title": "B", "Description": "Second Task"},
-			{"ID": 3, "Title": "C", "Description": "Third Task"}
+			{"id": 1, "title": "A", "description": "First Task"},
+			{"id": 2, "title": "B", "description": "Second Task"},
+			{"id": 3, "title": "C", "description": "Third Task"}
 		]`)
 
 		defer cleanDatabase()
 
 		// store := FileSystemStore{Database: database}
-		store := NewFileSystemPlayerStore(database)
+		store := NewFileSystemTaskStore(database)
 		task := Task{ID: 4, Title: "D", Description: "Fourth Task"}
 		store.AddTask(task)
 
@@ -99,15 +99,15 @@ func TestFileSystemStore(t *testing.T) {
 	t.Run("Delete task", func(t *testing.T) {
 
 		database, cleanDatabase := createTempFile(t, `[
-			{"ID": 1, "Title": "A", "Description": "First Task"},
-			{"ID": 2, "Title": "B", "Description": "Second Task"},
-			{"ID": 3, "Title": "C", "Description": "Third Task"}
+			{"id": 1, "title": "A", "description": "First Task"},
+			{"id": 2, "title": "B", "description": "Second Task"},
+			{"id": 3, "title": "C", "description": "Third Task"}
 		]`)
 
 		defer cleanDatabase()
 
 		// store := FileSystemStore{Database: database}
-		store := NewFileSystemPlayerStore(database)
+		store := NewFileSystemTaskStore(database)
 
 		id := 3
 		store.DeleteTask(id)

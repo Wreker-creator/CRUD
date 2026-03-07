@@ -20,7 +20,7 @@ type FileSystemStore struct {
 	*/
 }
 
-func NewFileSystemPlayerStore(database io.ReadWriteSeeker) *FileSystemStore {
+func NewFileSystemTaskStore(database io.ReadWriteSeeker) *FileSystemStore {
 
 	database.Seek(0, io.SeekStart)
 	list, _ := NewList(database)

@@ -77,7 +77,7 @@ func (t *TaskServer) returnAllTasks(w http.ResponseWriter) {
 func (t *TaskServer) returnTask(w http.ResponseWriter, id int) {
 	task, check := t.store.GetAllTasks().Find(id)
 	w.Header().Set("content-type", "application/json")
-	if check == false {
+	if !check {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
