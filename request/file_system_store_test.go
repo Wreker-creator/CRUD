@@ -112,8 +112,11 @@ func TestFileSystemStore(t *testing.T) {
 		id := 3
 		store.DeleteTask(id)
 
-		task, _ := store.GetAllTasks().Find(id)
-		assertTask(t, *task, Task{})
+		task, err := store.GetAllTasks().Find(id)
+
+		if task != nil {
+			t.Errorf("Expected nil, '%v'", err)
+		}
 
 		got := store.GetAllTasks()
 		want := []Task{
@@ -127,7 +130,9 @@ func TestFileSystemStore(t *testing.T) {
 
 }
 
-func createTempFile(t testing.TB, initialData string) (io.ReadWriteSeeker, func()) {
+// changed to os.File because we are wrapping the database into tape
+// which allows us to truncate.
+func createTempFile(t testing.TB, initialData string) (*os.File, func()) {
 	t.Helper()
 
 	tempFile, err := os.CreateTemp("", "db")
@@ -137,6 +142,9 @@ func createTempFile(t testing.TB, initialData string) (io.ReadWriteSeeker, func(
 	}
 
 	tempFile.Write([]byte(initialData))
+	tempFile.Seek(0, io.SeekStart)
+	// bringing the cursor to the start
+	// once the data has been written.
 
 	removeFile := func() {
 		tempFile.Close()

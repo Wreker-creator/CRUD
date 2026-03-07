@@ -3,10 +3,11 @@ package request
 import (
 	"encoding/json"
 	"io"
+	"os"
 )
 
 type FileSystemStore struct {
-	database io.ReadWriteSeeker
+	database io.Writer // we are going to encapsulate in tape.
 	list     List
 	/*
 		The reason for adding list here is as follows -
@@ -20,13 +21,13 @@ type FileSystemStore struct {
 	*/
 }
 
-func NewFileSystemTaskStore(database io.ReadWriteSeeker) *FileSystemStore {
+func NewFileSystemTaskStore(database *os.File) *FileSystemStore {
 
 	database.Seek(0, io.SeekStart)
 	list, _ := NewList(database)
 
 	return &FileSystemStore{
-		database: database,
+		database: &tape{database}, // encapsulated in tape
 		list:     list,
 	}
 
@@ -37,7 +38,7 @@ func (f *FileSystemStore) DeleteTask(id int) bool {
 	for i := range f.list {
 		if f.list[i].ID == id {
 			f.list = append(f.list[:i], f.list[i+1:]...)
-			f.database.Seek(0, io.SeekStart)
+			// f.database.Seek(0, io.SeekStart)
 			json.NewEncoder(f.database).Encode(&f.list)
 			return true
 		}
@@ -64,7 +65,7 @@ func (f *FileSystemStore) UpdateTask(id int, task Task) bool {
 	for i := range f.list {
 		if f.list[i].ID == id {
 			f.list[i] = task
-			f.database.Seek(0, io.SeekStart)
+			// f.database.Seek(0, io.SeekStart)
 			json.NewEncoder(f.database).Encode(&f.list)
 			return true
 		}
@@ -76,6 +77,6 @@ func (f *FileSystemStore) UpdateTask(id int, task Task) bool {
 
 func (f *FileSystemStore) AddTask(task Task) {
 	f.list = append(f.list, task)
-	f.database.Seek(0, io.SeekStart)
+	// f.database.Seek(0, io.SeekStart)
 	json.NewEncoder(f.database).Encode(&f.list)
 }
