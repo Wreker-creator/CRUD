@@ -1,4 +1,4 @@
-package request
+package task
 
 import (
 	"encoding/json"
@@ -83,16 +83,6 @@ func (f *FileSystemStore) GetAllTasks() List {
 
 	return f.list
 }
-
-// func (f *FileSystemStore) GetSepcificTask(id int) (Task, bool) {
-
-// 	task := f.GetAllTasks().Find(id)
-// 	if task != nil {
-// 		return *task, true
-// 	}
-// 	return Task{}, false
-
-// }
 
 func (f *FileSystemStore) UpdateTask(id int, task Task) bool {
 

@@ -1,4 +1,4 @@
-package request
+package task
 
 import (
 	"encoding/json"
@@ -95,6 +95,8 @@ func (t *TaskServer) handlePostRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.store.AddTask(task)
+	// currently not encoding because, this is valid behaviour for a rest api POST
+	// a more informative api would encode the response in json.
 	w.WriteHeader(http.StatusAccepted)
 
 }
