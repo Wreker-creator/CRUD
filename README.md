@@ -22,31 +22,12 @@ A RESTful CRUD API built in Go using only the standard library — no frameworks
 
 ---
 
-## Project Structure
-
-```
-task/
-├── request/
-│   ├── server.go              # TaskServer, routing, HTTP handlers
-│   ├── store.go               # InMemoryTaskStore
-│   ├── file_system_store.go   # FileSystemTaskStore
-│   ├── tape.go                # Tape wrapper for safe file writes
-│   ├── list.go                # List type and Find helper
-│   ├── types.go               # Task struct
-│   ├── fetch_test.go          # Unit tests for server
-│   └── file_system_store_test.go  # Unit + integration tests for store
-├── main.go
-└── go.mod
-```
-
----
-
 ## Getting Started
 
 ### Run the server
 
 ```bash
-go run main.go
+go run cmd/webserver/main.go
 ```
 
 Server starts on `http://localhost:5001`. A `task.db.json` file will be created in the project root to persist data.
