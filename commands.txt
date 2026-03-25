@@ -14,4 +14,4 @@ curl -v -X DELETE http://localhost:5001/tasks/1
 ```
 
 #update a task
-curl -X PUT http://localhost:5001/tasks/3 -H "Content-Type: application/json" -d '{"title":"Updated C","description":"Updated Third Task"}'
+curl -X PUT http://localhost:5001/tasks/2 -H "Content-Type: application/json" -d '{"title":"Updated C","description":"Updated Third Task"}'
