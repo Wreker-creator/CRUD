@@ -61,7 +61,7 @@ func initialiseTaskDbFile(file *os.File) error {
 
 }
 
-func (f *FileSystemStore) DeleteTask(id int) bool {
+func (f *FileSystemStore) DeleteTask(id int) (bool, error) {
 
 	for i := range f.list {
 		if f.list[i].ID == id {
@@ -69,22 +69,22 @@ func (f *FileSystemStore) DeleteTask(id int) bool {
 			// f.database.Seek(0, io.SeekStart)
 			// json.NewEncoder(f.database).Encode(&f.list)
 			f.database.Encode(&f.list)
-			return true
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
 }
 
-func (f *FileSystemStore) GetAllTasks() List {
+func (f *FileSystemStore) GetAllTasks() (List, error) {
 
 	sort.Slice(f.list, func(i, j int) bool {
 		return f.list[i].ID < f.list[j].ID
 	})
 
-	return f.list
+	return f.list, nil
 }
 
-func (f *FileSystemStore) UpdateTask(id int, task Task) bool {
+func (f *FileSystemStore) UpdateTask(id int, task Task) (bool, error) {
 
 	for i := range f.list {
 		if f.list[i].ID == id {
@@ -92,17 +92,18 @@ func (f *FileSystemStore) UpdateTask(id int, task Task) bool {
 			// f.database.Seek(0, io.SeekStart)
 			// json.NewEncoder(f.database).Encode(&f.list)
 			f.database.Encode(&f.list)
-			return true
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
 
 }
 
-func (f *FileSystemStore) AddTask(task Task) {
+func (f *FileSystemStore) AddTask(task Task) (int, error) {
 	f.list = append(f.list, task)
 	// f.database.Seek(0, io.SeekStart)
 	// json.NewEncoder(f.database).Encode(&f.list)
 	f.database.Encode(&f.list)
+	return task.ID, nil
 }

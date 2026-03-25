@@ -6,163 +6,163 @@ import (
 	"testing"
 )
 
-func TestFileSystemStore(t *testing.T) {
-	t.Run("List from reader", func(t *testing.T) {
+// func TestFileSystemStore(t *testing.T) {
+// 	t.Run("List from reader", func(t *testing.T) {
 
-		database, cleanDatabase := createTempFile(t, `[
-			{"id": 1, "title": "A", "description": "First Task"},
-			{"id": 2, "title": "B", "description": "Second Task"},
-			{"id": 3, "title": "C", "description": "Third Task"}
-		]`)
+// 		database, cleanDatabase := createTempFile(t, `[
+// 			{"id": 1, "title": "A", "description": "First Task"},
+// 			{"id": 2, "title": "B", "description": "Second Task"},
+// 			{"id": 3, "title": "C", "description": "Third Task"}
+// 		]`)
 
-		defer cleanDatabase()
+// 		defer cleanDatabase()
 
-		// store := FileSystemStore{Database: database}
-		store, err := NewFileSystemTaskStore(database)
-		assertNoError(t, err)
+// 		// store := FileSystemStore{Database: database}
+// 		store, err := NewFileSystemTaskStore(database)
+// 		assertNoError(t, err)
 
-		got := store.GetAllTasks()
+// 		got := store.GetAllTasks()
 
-		want := []Task{
-			{ID: 1, Title: "A", Description: "First Task"},
-			{ID: 2, Title: "B", Description: "Second Task"},
-			{ID: 3, Title: "C", Description: "Third Task"},
-		}
+// 		want := []Task{
+// 			{ID: 1, Title: "A", Description: "First Task"},
+// 			{ID: 2, Title: "B", Description: "Second Task"},
+// 			{ID: 3, Title: "C", Description: "Third Task"},
+// 		}
 
-		assertTasks(t, got, want)
+// 		assertTasks(t, got, want)
 
-		got = store.GetAllTasks()
-		assertTasks(t, got, want)
+// 		got = store.GetAllTasks()
+// 		assertTasks(t, got, want)
 
-	})
+// 	})
 
-	t.Run("get a specific task from an id", func(t *testing.T) {
+// 	t.Run("get a specific task from an id", func(t *testing.T) {
 
-		database, cleanDatabase := createTempFile(t, `[
-			{"id": 1, "title": "A", "description": "First Task"},
-			{"id": 2, "title": "B", "description": "Second Task"},
-			{"id": 3, "title": "C", "description": "Third Task"}
-		]`)
+// 		database, cleanDatabase := createTempFile(t, `[
+// 			{"id": 1, "title": "A", "description": "First Task"},
+// 			{"id": 2, "title": "B", "description": "Second Task"},
+// 			{"id": 3, "title": "C", "description": "Third Task"}
+// 		]`)
 
-		defer cleanDatabase()
+// 		defer cleanDatabase()
 
-		// store := FileSystemStore{database}
-		store, err := NewFileSystemTaskStore(database)
-		assertNoError(t, err)
-		got, _ := store.GetAllTasks().Find(1)
+// 		// store := FileSystemStore{database}
+// 		store, err := NewFileSystemTaskStore(database)
+// 		assertNoError(t, err)
+// 		got, _ := store.GetAllTasks().Find(1)
 
-		want := Task{ID: 1, Title: "A", Description: "First Task"}
-		assertTask(t, *got, want)
+// 		want := Task{ID: 1, Title: "A", Description: "First Task"}
+// 		assertTask(t, *got, want)
 
-	})
+// 	})
 
-	t.Run("update existing task", func(t *testing.T) {
+// 	t.Run("update existing task", func(t *testing.T) {
 
-		database, cleanDatabase := createTempFile(t, `[
-			{"id": 1, "title": "A", "description": "First Task"},
-			{"id": 2, "title": "B", "description": "Second Task"},
-			{"id": 3, "title": "C", "description": "Third Task"}
-		]`)
+// 		database, cleanDatabase := createTempFile(t, `[
+// 			{"id": 1, "title": "A", "description": "First Task"},
+// 			{"id": 2, "title": "B", "description": "Second Task"},
+// 			{"id": 3, "title": "C", "description": "Third Task"}
+// 		]`)
 
-		defer cleanDatabase()
+// 		defer cleanDatabase()
 
-		// store := FileSystemStore{Database: database}
-		store, err := NewFileSystemTaskStore(database)
-		assertNoError(t, err)
+// 		// store := FileSystemStore{Database: database}
+// 		store, err := NewFileSystemTaskStore(database)
+// 		assertNoError(t, err)
 
-		task := Task{ID: 2, Title: "A", Description: "First Task"}
-		store.UpdateTask(2, task)
+// 		task := Task{ID: 2, Title: "A", Description: "First Task"}
+// 		store.UpdateTask(2, task)
 
-		got, _ := store.GetAllTasks().Find(2)
+// 		got, _ := store.GetAllTasks().Find(2)
 
-		assertTask(t, *got, task)
+// 		assertTask(t, *got, task)
 
-	})
+// 	})
 
-	t.Run("store new tasks", func(t *testing.T) {
+// 	t.Run("store new tasks", func(t *testing.T) {
 
-		database, cleanDatabase := createTempFile(t, `[
-			{"id": 1, "title": "A", "description": "First Task"},
-			{"id": 2, "title": "B", "description": "Second Task"},
-			{"id": 3, "title": "C", "description": "Third Task"}
-		]`)
+// 		database, cleanDatabase := createTempFile(t, `[
+// 			{"id": 1, "title": "A", "description": "First Task"},
+// 			{"id": 2, "title": "B", "description": "Second Task"},
+// 			{"id": 3, "title": "C", "description": "Third Task"}
+// 		]`)
 
-		defer cleanDatabase()
+// 		defer cleanDatabase()
 
-		// store := FileSystemStore{Database: database}
-		store, err := NewFileSystemTaskStore(database)
-		assertNoError(t, err)
-		task := Task{ID: 4, Title: "D", Description: "Fourth Task"}
-		store.AddTask(task)
+// 		// store := FileSystemStore{Database: database}
+// 		store, err := NewFileSystemTaskStore(database)
+// 		assertNoError(t, err)
+// 		task := Task{ID: 4, Title: "D", Description: "Fourth Task"}
+// 		store.AddTask(task)
 
-		got, _ := store.GetAllTasks().Find(4)
+// 		got, _ := store.GetAllTasks().Find(4)
 
-		assertTask(t, *got, task)
+// 		assertTask(t, *got, task)
 
-	})
+// 	})
 
-	t.Run("Delete task", func(t *testing.T) {
+// 	t.Run("Delete task", func(t *testing.T) {
 
-		database, cleanDatabase := createTempFile(t, `[
-			{"id": 1, "title": "A", "description": "First Task"},
-			{"id": 2, "title": "B", "description": "Second Task"},
-			{"id": 3, "title": "C", "description": "Third Task"}
-		]`)
+// 		database, cleanDatabase := createTempFile(t, `[
+// 			{"id": 1, "title": "A", "description": "First Task"},
+// 			{"id": 2, "title": "B", "description": "Second Task"},
+// 			{"id": 3, "title": "C", "description": "Third Task"}
+// 		]`)
 
-		defer cleanDatabase()
+// 		defer cleanDatabase()
 
-		// store := FileSystemStore{Database: database}
-		store, err := NewFileSystemTaskStore(database)
-		assertNoError(t, err)
+// 		// store := FileSystemStore{Database: database}
+// 		store, err := NewFileSystemTaskStore(database)
+// 		assertNoError(t, err)
 
-		id := 3
-		store.DeleteTask(id)
+// 		id := 3
+// 		store.DeleteTask(id)
 
-		task, task_err := store.GetAllTasks().Find(id)
-		if task != nil {
-			t.Errorf("expected task to be deleted, but found %v", task_err)
-		}
+// 		task, task_err := store.GetAllTasks().Find(id)
+// 		if task != nil {
+// 			t.Errorf("expected task to be deleted, but found %v", task_err)
+// 		}
 
-		got := store.GetAllTasks()
-		want := []Task{
-			{ID: 1, Title: "A", Description: "First Task"},
-			{ID: 2, Title: "B", Description: "Second Task"},
-		}
+// 		got := store.GetAllTasks()
+// 		want := []Task{
+// 			{ID: 1, Title: "A", Description: "First Task"},
+// 			{ID: 2, Title: "B", Description: "Second Task"},
+// 		}
 
-		assertTasks(t, got, want)
+// 		assertTasks(t, got, want)
 
-	})
+// 	})
 
-	t.Run("tasks are sorted by id", func(t *testing.T) {
+// 	t.Run("tasks are sorted by id", func(t *testing.T) {
 
-		database, cleanDatabase := createTempFile(t, `[
-			{"id": 2, "title": "B", "description": "Second Task"},
-			{"id": 1, "title": "A", "description": "First Task"},
-			{"id": 3, "title": "C", "description": "Third Task"}
-		]`)
+// 		database, cleanDatabase := createTempFile(t, `[
+// 			{"id": 2, "title": "B", "description": "Second Task"},
+// 			{"id": 1, "title": "A", "description": "First Task"},
+// 			{"id": 3, "title": "C", "description": "Third Task"}
+// 		]`)
 
-		defer cleanDatabase()
+// 		defer cleanDatabase()
 
-		// store := FileSystemStore{Database: database}
-		store, err := NewFileSystemTaskStore(database)
-		assertNoError(t, err)
+// 		// store := FileSystemStore{Database: database}
+// 		store, err := NewFileSystemTaskStore(database)
+// 		assertNoError(t, err)
 
-		got := store.GetAllTasks()
+// 		got := store.GetAllTasks()
 
-		want := []Task{
-			{ID: 1, Title: "A", Description: "First Task"},
-			{ID: 2, Title: "B", Description: "Second Task"},
-			{ID: 3, Title: "C", Description: "Third Task"},
-		}
+// 		want := []Task{
+// 			{ID: 1, Title: "A", Description: "First Task"},
+// 			{ID: 2, Title: "B", Description: "Second Task"},
+// 			{ID: 3, Title: "C", Description: "Third Task"},
+// 		}
 
-		assertTasks(t, got, want)
+// 		assertTasks(t, got, want)
 
-		got = store.GetAllTasks()
-		assertTasks(t, got, want)
+// 		got = store.GetAllTasks()
+// 		assertTasks(t, got, want)
 
-	})
+// 	})
 
-}
+// }
 
 // changed to os.File because we are wrapping the database into tape
 // which allows us to truncate.

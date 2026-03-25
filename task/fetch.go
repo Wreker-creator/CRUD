@@ -13,11 +13,17 @@ type Task struct {
 	Description string `json:"description"`
 }
 
+/*
+Updating the functions to have error returns because in postgres errors are normal
+
+Giving (int, error) to addtask specifically because now postgres generates the id,
+the client doesn't supplu it anymore.
+*/
 type TaskStore interface {
-	GetAllTasks() List
-	AddTask(task Task)
-	DeleteTask(id int) bool
-	UpdateTask(id int, task Task) bool
+	GetAllTasks() (List, error)
+	AddTask(task Task) (int, error)
+	DeleteTask(id int) (bool, error)
+	UpdateTask(id int, task Task) (bool, error)
 }
 
 type TaskServer struct {
@@ -40,8 +46,6 @@ func NewTaskServer(store TaskStore) *TaskServer {
 }
 
 func (t *TaskServer) handleTaskCollection(w http.ResponseWriter, r *http.Request) {
-
-	// for rturning all tasks and handling post request
 
 	switch r.Method {
 	case http.MethodGet:
@@ -70,17 +74,34 @@ func (t *TaskServer) handleTaskItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *TaskServer) returnAllTasks(w http.ResponseWriter) {
+
+	tasks, err := t.store.GetAllTasks()
+
+	if err != nil {
+		http.Error(w, "failed to retreive tasks", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("content-type", "application/json")
-	json.NewEncoder(w).Encode(t.store.GetAllTasks())
+	json.NewEncoder(w).Encode(tasks)
 }
 
 func (t *TaskServer) returnTask(w http.ResponseWriter, id int) {
-	task, check := t.store.GetAllTasks().Find(id)
-	w.Header().Set("content-type", "application/json")
-	if !check {
+
+	tasks, err := t.store.GetAllTasks()
+
+	if err != nil {
+		http.Error(w, "failed to retreive tasks", http.StatusInternalServerError)
+		return
+	}
+
+	task, found := tasks.Find(id)
+	if !found {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
+	w.Header().Set("content-type", "application/json")
 	json.NewEncoder(w).Encode(task)
 }
 
@@ -88,16 +109,22 @@ func (t *TaskServer) handlePostRequest(w http.ResponseWriter, r *http.Request) {
 
 	var task Task
 
-	err := json.NewDecoder(r.Body).Decode(&task)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
+		http.Error(w, "failed to create task", http.StatusInternalServerError)
 		return
 	}
 
-	t.store.AddTask(task)
-	// currently not encoding because, this is valid behaviour for a rest api POST
-	// a more informative api would encode the response in json.
-	w.WriteHeader(http.StatusAccepted)
+	newId, err := t.store.AddTask(task)
+	if err != nil {
+		http.Error(w, "failed to create task", http.StatusInternalServerError)
+		return
+	}
+
+	task.ID = newId
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(http.StatusCreated) // changed from stausAccepted to statusCreated.
+
+	json.NewEncoder(w).Encode(task)
 
 }
 
@@ -123,7 +150,11 @@ func (t *TaskServer) handleDeleteRequest(w http.ResponseWriter, r *http.Request)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	ok := t.store.DeleteTask(id)
+	ok, err := t.store.DeleteTask(id)
+	if err != nil {
+		http.Error(w, "failed to delete task", http.StatusInternalServerError)
+		return
+	}
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -148,7 +179,11 @@ func (t *TaskServer) handlePutRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task.ID = id
-	ok := t.store.UpdateTask(id, task)
+	ok, err := t.store.UpdateTask(id, task)
+	if err != nil {
+		http.Error(w, "failed to update task", http.StatusInternalServerError)
+		return
+	}
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		return

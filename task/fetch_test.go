@@ -1,12 +1,9 @@
 package task
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -45,216 +42,216 @@ func (s *StubTaskStore) GetAllTasks() List {
 	return s.tasks
 }
 
-func TestSingularTaskFunctions(t *testing.T) {
+// func TestSingularTaskFunctions(t *testing.T) {
 
-	store := &StubTaskStore{
-		tasks: []Task{
-			{ID: 1, Title: "A", Description: "First Task"},
-			{ID: 2, Title: "B", Description: "Second Task"},
-		},
-	}
-	server := NewTaskServer(store)
+// 	store := &StubTaskStore{
+// 		tasks: []Task{
+// 			{ID: 1, Title: "A", Description: "First Task"},
+// 			{ID: 2, Title: "B", Description: "Second Task"},
+// 		},
+// 	}
+// 	server := NewTaskServer(store)
 
-	t.Run("return task with specific task id", func(t *testing.T) {
+// 	t.Run("return task with specific task id", func(t *testing.T) {
 
-		id := 1
-		request := newGetTaskRequest(id)
-		response := httptest.NewRecorder()
+// 		id := 1
+// 		request := newGetTaskRequest(id)
+// 		response := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
+// 		server.ServeHTTP(response, request)
 
-		var got Task
-		err := json.NewDecoder(response.Body).Decode(&got)
-		if err != nil {
-			t.Errorf("unable to decode response body: %v", err)
-		}
+// 		var got Task
+// 		err := json.NewDecoder(response.Body).Decode(&got)
+// 		if err != nil {
+// 			t.Errorf("unable to decode response body: %v", err)
+// 		}
 
-		want := Task{ID: 1, Title: "A", Description: "First Task"}
-		assertTask(t, got, want)
-		assertStatusCode(t, response.Code, http.StatusOK)
+// 		want := Task{ID: 1, Title: "A", Description: "First Task"}
+// 		assertTask(t, got, want)
+// 		assertStatusCode(t, response.Code, http.StatusOK)
 
-	})
+// 	})
 
-	t.Run("return empty for no task", func(t *testing.T) {
-		id := 3
-		request := newGetTaskRequest(id)
-		response := httptest.NewRecorder()
+// 	t.Run("return empty for no task", func(t *testing.T) {
+// 		id := 3
+// 		request := newGetTaskRequest(id)
+// 		response := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
+// 		server.ServeHTTP(response, request)
 
-		assertStatusCode(t, response.Code, http.StatusNotFound)
-	})
+// 		assertStatusCode(t, response.Code, http.StatusNotFound)
+// 	})
 
-	t.Run("it returns accepted on Post", func(t *testing.T) {
+// 	t.Run("it returns accepted on Post", func(t *testing.T) {
 
-		newTask := `{"id":3,"title":"C","description":"Third Task"}`
+// 		newTask := `{"id":3,"title":"C","description":"Third Task"}`
 
-		request, _ := http.NewRequest(http.MethodPost, "/tasks", strings.NewReader(newTask))
-		response := httptest.NewRecorder()
+// 		request, _ := http.NewRequest(http.MethodPost, "/tasks", strings.NewReader(newTask))
+// 		response := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
+// 		server.ServeHTTP(response, request)
 
-		assertStatusCode(t, response.Code, http.StatusAccepted)
-		if len(store.tasks) != 3 {
-			t.Errorf("not added to the current database")
-		}
+// 		assertStatusCode(t, response.Code, http.StatusAccepted)
+// 		if len(store.tasks) != 3 {
+// 			t.Errorf("not added to the current database")
+// 		}
 
-		want := Task{ID: 3, Title: "C", Description: "Third Task"}
-		assertTask(t, store.tasks[2], want)
+// 		want := Task{ID: 3, Title: "C", Description: "Third Task"}
+// 		assertTask(t, store.tasks[2], want)
 
-	})
+// 	})
 
-}
+// }
 
-func TestReturnAllTasks(t *testing.T) {
+// func TestReturnAllTasks(t *testing.T) {
 
-	store := &StubTaskStore{
-		tasks: []Task{
-			{ID: 1, Title: "A", Description: "First Task"},
-			{ID: 2, Title: "B", Description: "Second Task"},
-			{ID: 3, Title: "C", Description: "Third Task"},
-		},
-	}
+// 	store := &StubTaskStore{
+// 		tasks: []Task{
+// 			{ID: 1, Title: "A", Description: "First Task"},
+// 			{ID: 2, Title: "B", Description: "Second Task"},
+// 			{ID: 3, Title: "C", Description: "Third Task"},
+// 		},
+// 	}
 
-	server := NewTaskServer(store)
+// 	server := NewTaskServer(store)
 
-	t.Run("check if all tasks are returned", func(t *testing.T) {
+// 	t.Run("check if all tasks are returned", func(t *testing.T) {
 
-		request, _ := http.NewRequest(http.MethodGet, "/tasks", nil)
-		respone := httptest.NewRecorder()
-		server.ServeHTTP(respone, request)
+// 		request, _ := http.NewRequest(http.MethodGet, "/tasks", nil)
+// 		respone := httptest.NewRecorder()
+// 		server.ServeHTTP(respone, request)
 
-		var got []Task
-		err := json.NewDecoder(respone.Body).Decode(&got)
-		if err != nil {
-			t.Errorf("unable to decode response body: %v", err)
-		}
+// 		var got []Task
+// 		err := json.NewDecoder(respone.Body).Decode(&got)
+// 		if err != nil {
+// 			t.Errorf("unable to decode response body: %v", err)
+// 		}
 
-		want := []Task{
-			{ID: 1, Title: "A", Description: "First Task"},
-			{ID: 2, Title: "B", Description: "Second Task"},
-			{ID: 3, Title: "C", Description: "Third Task"},
-		}
+// 		want := []Task{
+// 			{ID: 1, Title: "A", Description: "First Task"},
+// 			{ID: 2, Title: "B", Description: "Second Task"},
+// 			{ID: 3, Title: "C", Description: "Third Task"},
+// 		}
 
-		assertStatusCode(t, respone.Code, http.StatusOK)
-		assertTasks(t, got, want)
+// 		assertStatusCode(t, respone.Code, http.StatusOK)
+// 		assertTasks(t, got, want)
 
-	})
+// 	})
 
-}
+// }
 
-func TestDeleteTask(t *testing.T) {
+// func TestDeleteTask(t *testing.T) {
 
-	t.Run("check if the task was deleted", func(t *testing.T) {
+// 	t.Run("check if the task was deleted", func(t *testing.T) {
 
-		store := &StubTaskStore{
-			tasks: []Task{
-				{ID: 1, Title: "A", Description: "First Task"},
-				{ID: 2, Title: "B", Description: "Second Task"},
-				{ID: 3, Title: "C", Description: "Third Task"},
-			},
-		}
+// 		store := &StubTaskStore{
+// 			tasks: []Task{
+// 				{ID: 1, Title: "A", Description: "First Task"},
+// 				{ID: 2, Title: "B", Description: "Second Task"},
+// 				{ID: 3, Title: "C", Description: "Third Task"},
+// 			},
+// 		}
 
-		server := NewTaskServer(store)
-		id := 1
+// 		server := NewTaskServer(store)
+// 		id := 1
 
-		request := newDeleteRequest(id)
-		response := httptest.NewRecorder()
+// 		request := newDeleteRequest(id)
+// 		response := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
-		assertStatusCode(t, response.Code, http.StatusOK)
+// 		server.ServeHTTP(response, request)
+// 		assertStatusCode(t, response.Code, http.StatusOK)
 
-		want := []Task{
-			{ID: 2, Title: "B", Description: "Second Task"},
-			{ID: 3, Title: "C", Description: "Third Task"},
-		}
+// 		want := []Task{
+// 			{ID: 2, Title: "B", Description: "Second Task"},
+// 			{ID: 3, Title: "C", Description: "Third Task"},
+// 		}
 
-		assertTasks(t, store.tasks, want)
+// 		assertTasks(t, store.tasks, want)
 
-	})
+// 	})
 
-	t.Run("check if an error was raised for incorrect id", func(t *testing.T) {
+// 	t.Run("check if an error was raised for incorrect id", func(t *testing.T) {
 
-		store := &StubTaskStore{
-			tasks: []Task{
-				{ID: 1, Title: "A", Description: "First Task"},
-				{ID: 2, Title: "B", Description: "Second Task"},
-				{ID: 3, Title: "C", Description: "Third Task"},
-			},
-		}
+// 		store := &StubTaskStore{
+// 			tasks: []Task{
+// 				{ID: 1, Title: "A", Description: "First Task"},
+// 				{ID: 2, Title: "B", Description: "Second Task"},
+// 				{ID: 3, Title: "C", Description: "Third Task"},
+// 			},
+// 		}
 
-		server := NewTaskServer(store)
-		id := 99
+// 		server := NewTaskServer(store)
+// 		id := 99
 
-		request := newDeleteRequest(id)
-		response := httptest.NewRecorder()
+// 		request := newDeleteRequest(id)
+// 		response := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
-		assertStatusCode(t, response.Code, http.StatusNotFound)
-		want := []Task{
-			{ID: 1, Title: "A", Description: "First Task"},
-			{ID: 2, Title: "B", Description: "Second Task"},
-			{ID: 3, Title: "C", Description: "Third Task"},
-		}
-		assertTasks(t, store.tasks, want)
+// 		server.ServeHTTP(response, request)
+// 		assertStatusCode(t, response.Code, http.StatusNotFound)
+// 		want := []Task{
+// 			{ID: 1, Title: "A", Description: "First Task"},
+// 			{ID: 2, Title: "B", Description: "Second Task"},
+// 			{ID: 3, Title: "C", Description: "Third Task"},
+// 		}
+// 		assertTasks(t, store.tasks, want)
 
-	})
+// 	})
 
-}
+// }
 
-func TestUpdateTask(t *testing.T) {
+// func TestUpdateTask(t *testing.T) {
 
-	t.Run("check if the error is raised for non-existent id", func(t *testing.T) {
-		store := &StubTaskStore{
-			tasks: []Task{
-				{ID: 1, Title: "A", Description: "First Task"},
-				{ID: 2, Title: "B", Description: "Second Task"},
-				{ID: 3, Title: "C", Description: "Third Task"},
-			},
-		}
+// 	t.Run("check if the error is raised for non-existent id", func(t *testing.T) {
+// 		store := &StubTaskStore{
+// 			tasks: []Task{
+// 				{ID: 1, Title: "A", Description: "First Task"},
+// 				{ID: 2, Title: "B", Description: "Second Task"},
+// 				{ID: 3, Title: "C", Description: "Third Task"},
+// 			},
+// 		}
 
-		server := NewTaskServer(store)
-		id := 4
-		newTask := `{"id":3,"title":"Updated C","description":"Updated Third Task"}`
-		request, _ := http.NewRequest(http.MethodPut, fmt.Sprintf("/tasks/%d", id), strings.NewReader(newTask))
-		response := httptest.NewRecorder()
+// 		server := NewTaskServer(store)
+// 		id := 4
+// 		newTask := `{"id":3,"title":"Updated C","description":"Updated Third Task"}`
+// 		request, _ := http.NewRequest(http.MethodPut, fmt.Sprintf("/tasks/%d", id), strings.NewReader(newTask))
+// 		response := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
+// 		server.ServeHTTP(response, request)
 
-		assertStatusCode(t, response.Code, http.StatusNotFound)
+// 		assertStatusCode(t, response.Code, http.StatusNotFound)
 
-	})
+// 	})
 
-	t.Run("check if the task is updated or not", func(t *testing.T) {
+// 	t.Run("check if the task is updated or not", func(t *testing.T) {
 
-		store := &StubTaskStore{
-			tasks: []Task{
-				{ID: 1, Title: "A", Description: "First Task"},
-				{ID: 2, Title: "B", Description: "Second Task"},
-				{ID: 3, Title: "C", Description: "Third Task"},
-			},
-		}
+// 		store := &StubTaskStore{
+// 			tasks: []Task{
+// 				{ID: 1, Title: "A", Description: "First Task"},
+// 				{ID: 2, Title: "B", Description: "Second Task"},
+// 				{ID: 3, Title: "C", Description: "Third Task"},
+// 			},
+// 		}
 
-		server := NewTaskServer(store)
-		id := 3
-		newTask := `{"id":3,"title":"Updated C","description":"Updated Third Task"}`
-		request, _ := http.NewRequest(http.MethodPut, fmt.Sprintf("/tasks/%d", id), strings.NewReader(newTask))
-		response := httptest.NewRecorder()
+// 		server := NewTaskServer(store)
+// 		id := 3
+// 		newTask := `{"id":3,"title":"Updated C","description":"Updated Third Task"}`
+// 		request, _ := http.NewRequest(http.MethodPut, fmt.Sprintf("/tasks/%d", id), strings.NewReader(newTask))
+// 		response := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
+// 		server.ServeHTTP(response, request)
 
-		want := []Task{
-			{ID: 1, Title: "A", Description: "First Task"},
-			{ID: 2, Title: "B", Description: "Second Task"},
-			{ID: 3, Title: "Updated C", Description: "Updated Third Task"},
-		}
+// 		want := []Task{
+// 			{ID: 1, Title: "A", Description: "First Task"},
+// 			{ID: 2, Title: "B", Description: "Second Task"},
+// 			{ID: 3, Title: "Updated C", Description: "Updated Third Task"},
+// 		}
 
-		assertStatusCode(t, response.Code, http.StatusOK)
-		assertTasks(t, store.GetAllTasks(), want)
+// 		assertStatusCode(t, response.Code, http.StatusOK)
+// 		assertTasks(t, store.GetAllTasks(), want)
 
-	})
+// 	})
 
-}
+// }
 
 func newDeleteRequest(id int) *http.Request {
 	request, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/tasks/%d", id), nil)

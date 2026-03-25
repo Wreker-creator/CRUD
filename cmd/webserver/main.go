@@ -7,26 +7,25 @@ import (
 	"task/task"
 )
 
-// "bookstore/request"
-// "log"
-// "os"
-
-const dbFileName = "task.db.json"
-
 func main() {
-
-	db, err := os.OpenFile(dbFileName, os.O_RDWR|os.O_CREATE, 0666)
-
-	if err != nil {
-		log.Fatalf("problem opening %s %v", dbFileName, err)
+	// os.Getenv reads the DATABASE_URL variable injected by docker-compose.
+	// If it's empty, we fail immediately with a clear message rather than
+	// crashing later with a confusing nil pointer or connection error.
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		log.Fatal("DATABASE_URL environment variable is not set")
 	}
 
-	store, err := task.NewFileSystemTaskStore(db)
+	store, err := task.NewPostgresTaskStore(dsn)
 	if err != nil {
-		log.Fatalf("got error %v", err)
+		log.Fatalf("could not connect to database: %v", err)
 	}
+
 	server := task.NewTaskServer(store)
 
-	http.ListenAndServe(":5001", server)
+	log.Println("Task Manager API running on :5001")
 
+	if err := http.ListenAndServe(":5001", server); err != nil {
+		log.Fatalf("server failed to start: %v", err)
+	}
 }

@@ -1,0 +1,4 @@
+.env
+task.db.json
+taskmanager
+.DS_Store
