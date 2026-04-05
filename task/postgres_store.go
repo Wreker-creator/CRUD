@@ -5,6 +5,9 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
+	// for reference, the blank identifier is because we only want to trigger the init function
+	// and not use anything else, and if we don't use the blank identifier, the compiler will complain about an unused import
+	// the moment we import, the init function in the pq package will run and register the postgres driver with the database/sql package, allowing us to use "postgres" as the driver name when we call sql.Open
 )
 
 type PostgresTaskStore struct {
@@ -50,6 +53,9 @@ func (p *PostgresTaskStore) GetAllTasks() (List, error) {
 		tasks = append(tasks, t)
 	}
 
+	// to check for any errors that may have occurrred during iteration,
+	// because rows.Next() will return false both when there are no more rows and when an error occurs,
+	// so we need to check for errors separately after the loop
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("GetAllTasks rows error, %w", err)
 	}

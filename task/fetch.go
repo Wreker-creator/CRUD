@@ -178,7 +178,6 @@ func (t *TaskServer) handlePutRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task.ID = id
 	ok, err := t.store.UpdateTask(id, task)
 	if err != nil {
 		http.Error(w, "failed to update task", http.StatusInternalServerError)
@@ -188,5 +187,5 @@ func (t *TaskServer) handlePutRequest(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusAccepted)
 }
